@@ -8,6 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,6 +19,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -65,6 +68,7 @@ fun MainScreen(cppMessage: String) {
     val context = LocalContext.current
     var selectedFilePath by remember { mutableStateOf("No file selected") }
     var password by remember { mutableStateOf("") }
+    var isEncryptMode by remember { mutableStateOf(true) }
 
     val filePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -83,16 +87,37 @@ fun MainScreen(cppMessage: String) {
         verticalArrangement = Arrangement.Center
     ) {
         Text(text = "🛡️", fontSize = 64.sp)
-        Text(text = "AESGuard", fontSize = 32.sp)
+        Text(text = "AESGuard", fontSize = 32.sp, fontWeight = FontWeight.Bold)
         Text(text = "Secure File Encryption", fontSize = 14.sp)
 
         Spacer(modifier = Modifier.height(16.dp))
         Text(text = "✅ $cppMessage", fontSize = 11.sp)
 
         Spacer(modifier = Modifier.height(24.dp))
-        Text(text = selectedFilePath, fontSize = 12.sp)
+
+        // Mode Toggle
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            Button(
+                onClick = { isEncryptMode = true },
+                modifier = Modifier.weight(1f).padding(end = 4.dp)
+            ) {
+                Text("🔒 Encrypt")
+            }
+            Button(
+                onClick = { isEncryptMode = false },
+                modifier = Modifier.weight(1f).padding(start = 4.dp)
+            ) {
+                Text("🔓 Decrypt")
+            }
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
+        Text(text = selectedFilePath, fontSize = 12.sp)
+
+        Spacer(modifier = Modifier.height(12.dp))
         Button(
             onClick = { filePickerLauncher.launch("*/*") },
             modifier = Modifier.fillMaxWidth()
@@ -100,7 +125,7 @@ fun MainScreen(cppMessage: String) {
             Text("📁 Pick File")
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(12.dp))
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
@@ -113,7 +138,8 @@ fun MainScreen(cppMessage: String) {
         Button(
             onClick = {
                 if (password.isNotEmpty()) {
-                    Toast.makeText(context, "🔒 Encrypt clicked! (demo)", Toast.LENGTH_SHORT).show()
+                    val mode = if (isEncryptMode) "🔒 Encrypt" else "🔓 Decrypt"
+                    Toast.makeText(context, "$mode clicked! (demo)", Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(context, "Enter password first!", Toast.LENGTH_SHORT).show()
                 }
@@ -122,7 +148,10 @@ fun MainScreen(cppMessage: String) {
                 .fillMaxWidth()
                 .height(56.dp)
         ) {
-            Text("🔒 Encrypt File", fontSize = 18.sp)
+            Text(
+                if (isEncryptMode) "🔒 Encrypt File" else "🔓 Decrypt File",
+                fontSize = 18.sp
+            )
         }
     }
 }
