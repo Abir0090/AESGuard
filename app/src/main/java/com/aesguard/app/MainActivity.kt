@@ -12,8 +12,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.aesguard.app.ui.theme.AESGuardTheme
+import androidx.compose.foundation.layout.Column
+import androidx.compose.ui.unit.sp
 
 class MainActivity : ComponentActivity() {
+
+    companion object {
+        init {
+            System.loadLibrary("aesguard")
+        }
+    }
+
+    external fun stringFromJNI(): String
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -32,10 +43,13 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
+    Column {
+        Text(
+            text = "🛡️ $name",
+            fontSize = 32.sp,
+            modifier = modifier
+        )
+    }
 }
 
 @Preview(showBackground = true)
