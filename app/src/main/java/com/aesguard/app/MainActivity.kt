@@ -45,6 +45,8 @@ class MainActivity : ComponentActivity() {
     external fun aesEncrypt(input: String, password: String): String
     external fun aesDecrypt(input: String, password: String): String
 
+    external fun aesEncryptFile(inputPath: String, outputPath: String, password: String): String
+
     private var cppMessage: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
