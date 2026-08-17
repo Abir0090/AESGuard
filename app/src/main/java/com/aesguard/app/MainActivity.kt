@@ -41,23 +41,19 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    external fun stringFromJNI(): String
     external fun aesEncrypt(input: String, password: String): String
     external fun aesDecrypt(input: String, password: String): String
     external fun aesEncryptFile(inputPath: String, outputPath: String, password: String): String
 
-    private var cppMessage: String = ""
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        cppMessage = stringFromJNI()
         setContent {
             AESGuardTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MainScreen(cppMessage, this)
+                    MainScreen(this)
                 }
             }
         }
@@ -65,7 +61,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen(cppMessage: String, activity: MainActivity) {
+fun MainScreen(activity: MainActivity) {
     val context = LocalContext.current
     var selectedFilePath by remember { mutableStateOf("No file selected") }
     var selectedFileUri by remember { mutableStateOf<android.net.Uri?>(null) }
@@ -92,9 +88,6 @@ fun MainScreen(cppMessage: String, activity: MainActivity) {
         Text(text = "🛡️", fontSize = 64.sp)
         Text(text = "AESGuard", fontSize = 32.sp, fontWeight = FontWeight.Bold)
         Text(text = "Secure File Encryption", fontSize = 14.sp)
-
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(text = "✅ $cppMessage", fontSize = 11.sp)
 
         Spacer(modifier = Modifier.height(24.dp))
 
