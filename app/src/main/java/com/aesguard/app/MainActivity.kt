@@ -19,7 +19,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,7 +42,6 @@ class MainActivity : ComponentActivity() {
     }
 
     external fun stringFromJNI(): String
-    external fun testFileIO(path: String): String
     external fun aesEncrypt(input: String, password: String): String
     external fun aesDecrypt(input: String, password: String): String
 
@@ -58,7 +56,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MainScreen(cppMessage)
+                    MainScreen(cppMessage, this)
                 }
             }
         }
@@ -66,7 +64,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen(cppMessage: String) {
+fun MainScreen(cppMessage: String, activity: MainActivity) {
     val context = LocalContext.current
     var selectedFilePath by remember { mutableStateOf("No file selected") }
     var password by remember { mutableStateOf("") }
@@ -140,8 +138,18 @@ fun MainScreen(cppMessage: String) {
         Button(
             onClick = {
                 if (password.isNotEmpty()) {
-                    val mode = if (isEncryptMode) "🔒 Encrypt" else "🔓 Decrypt"
-                    Toast.makeText(context, "$mode clicked! (demo)", Toast.LENGTH_SHORT).show()
+                    try {
+                        val testText = "Hello AESGuard!"
+                        val mode = if (isEncryptMode) "🔒 Encrypt" else "🔓 Decrypt"
+                        val result = if (isEncryptMode) {
+                            activity.aesEncrypt(testText, password)
+                        } else {
+                            activity.aesDecrypt(testText, password)
+                        }
+                        Toast.makeText(context, "$mode: $result", Toast.LENGTH_LONG).show()
+                    } catch (e: Exception) {
+                        Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
                 } else {
                     Toast.makeText(context, "Enter password first!", Toast.LENGTH_SHORT).show()
                 }
