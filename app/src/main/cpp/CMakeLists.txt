@@ -3,6 +3,7 @@ project("aesguard")
 
 add_library(aesguard SHARED
         aes_cipher.cpp
+        file_encryptor.cpp
 )
 
 find_library(log-lib log)
