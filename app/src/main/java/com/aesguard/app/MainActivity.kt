@@ -44,7 +44,6 @@ class MainActivity : ComponentActivity() {
     external fun stringFromJNI(): String
     external fun aesEncrypt(input: String, password: String): String
     external fun aesDecrypt(input: String, password: String): String
-
     external fun aesEncryptFile(inputPath: String, outputPath: String, password: String): String
 
     private var cppMessage: String = ""
@@ -69,6 +68,7 @@ class MainActivity : ComponentActivity() {
 fun MainScreen(cppMessage: String, activity: MainActivity) {
     val context = LocalContext.current
     var selectedFilePath by remember { mutableStateOf("No file selected") }
+    var selectedFileUri by remember { mutableStateOf<android.net.Uri?>(null) }
     var password by remember { mutableStateOf("") }
     var isEncryptMode by remember { mutableStateOf(true) }
 
@@ -76,6 +76,7 @@ fun MainScreen(cppMessage: String, activity: MainActivity) {
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
         uri?.let {
+            selectedFileUri = it
             selectedFilePath = "File: ${it.lastPathSegment}"
             Toast.makeText(context, "File selected!", Toast.LENGTH_SHORT).show()
         }
@@ -97,7 +98,6 @@ fun MainScreen(cppMessage: String, activity: MainActivity) {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Mode Toggle
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
@@ -141,14 +141,26 @@ fun MainScreen(cppMessage: String, activity: MainActivity) {
             onClick = {
                 if (password.isNotEmpty()) {
                     try {
-                        val testText = "Hello AESGuard!"
-                        val mode = if (isEncryptMode) "🔒 Encrypt" else "🔓 Decrypt"
-                        val result = if (isEncryptMode) {
-                            activity.aesEncrypt(testText, password)
+                        if (selectedFileUri != null) {
+                            val inputPath = selectedFileUri.toString()
+                            val outputPath = inputPath + ".enc"
+                            val mode = if (isEncryptMode) "🔒 Encrypt" else "🔓 Decrypt"
+                            val result = if (isEncryptMode) {
+                                activity.aesEncryptFile(inputPath, outputPath, password)
+                            } else {
+                                activity.aesEncryptFile(outputPath, inputPath, password)
+                            }
+                            Toast.makeText(context, "$mode: $result", Toast.LENGTH_LONG).show()
                         } else {
-                            activity.aesDecrypt(testText, password)
+                            val testText = "Hello AESGuard!"
+                            val mode = if (isEncryptMode) "🔒 Encrypt" else "🔓 Decrypt"
+                            val result = if (isEncryptMode) {
+                                activity.aesEncrypt(testText, password)
+                            } else {
+                                activity.aesDecrypt(testText, password)
+                            }
+                            Toast.makeText(context, "$mode: $result", Toast.LENGTH_LONG).show()
                         }
-                        Toast.makeText(context, "$mode: $result", Toast.LENGTH_LONG).show()
                     } catch (e: Exception) {
                         Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
                     }
