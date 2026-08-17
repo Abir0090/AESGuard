@@ -44,6 +44,8 @@ class MainActivity : ComponentActivity() {
 
     external fun stringFromJNI(): String
     external fun testFileIO(path: String): String
+    external fun aesEncrypt(input: String, password: String): String
+    external fun aesDecrypt(input: String, password: String): String
 
     private var cppMessage: String = ""
 
